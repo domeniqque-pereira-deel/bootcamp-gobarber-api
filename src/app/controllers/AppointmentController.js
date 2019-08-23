@@ -49,6 +49,12 @@ class AppointmentController {
     /**
      * Check provider
      */
+    if (provider_id === req.userId) {
+      return res
+        .status(401)
+        .json({ error: 'You can not create appointments for yourself' });
+    }
+
     const providerExists = await User.findOne({
       where: { id: provider_id, provider: true },
     });
@@ -56,7 +62,7 @@ class AppointmentController {
     if (!providerExists) {
       return res
         .status(400)
-        .json({ error: 'You can only create appointments with providers ' });
+        .json({ error: 'You can only create appointments with providers' });
     }
 
     /**
@@ -95,15 +101,14 @@ class AppointmentController {
      * Notify appointment provider
      */
     const user = await User.findByPk(req.userId);
-    const formatedDate = format(hourStart, "'dia' dd 'de' MMMM', `as' H:mm'h'");
+    const formatedDate = format(hourStart, "'dia' dd 'de' MMMM', às' H:mm'h'", {
+      locale: pt,
+    });
 
-    await Notification.create(
-      {
-        content: `Novo agendamento de ${user.name} para o ${formatedDate}`,
-        provider: provider_id,
-      },
-      { locale: pt }
-    );
+    await Notification.create({
+      user: provider_id,
+      content: `Novo agendamento de ${user.name} para o ${formatedDate}`,
+    });
 
     return res.json(appointment);
   }
