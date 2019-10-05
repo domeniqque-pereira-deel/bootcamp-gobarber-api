@@ -10,6 +10,8 @@ import routes from './routes';
 
 import './database';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 class App {
   constructor() {
     this.server = express();
@@ -23,7 +25,11 @@ class App {
 
   middlewares() {
     this.server.use(express.json());
-    this.server.use(Sentry.Handlers.requestHandler());
+
+    if (isProduction) {
+      this.server.use(Sentry.Handlers.requestHandler());
+    }
+
     this.server.use(
       '/files',
       express.static(resolve(__dirname, '..', 'tmp', 'uploads'))
@@ -32,19 +38,21 @@ class App {
 
   exceptionHandler() {
     this.server.use(async (err, req, res, next) => {
-      if (process.env.NODE_ENV === 'development') {
-        const errors = await new Youch(err, req).toJSON();
-
-        return res.status(500).json(errors);
+      if (isProduction) {
+        return res.status(500).json({ error: 'Internal server error' });
       }
 
-      return res.status(500).json({ error: 'Internal server error' });
+      const errors = await new Youch(err, req).toJSON();
+      return res.status(500).json(errors);
     });
   }
 
   routes() {
     this.server.use(routes);
-    this.server.use(Sentry.Handlers.errorHandler());
+
+    if (isProduction) {
+      this.server.use(Sentry.Handlers.errorHandler());
+    }
   }
 }
 

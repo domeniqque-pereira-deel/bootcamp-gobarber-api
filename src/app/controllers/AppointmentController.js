@@ -138,7 +138,7 @@ class AppointmentController {
 
     if (appointment.user_id !== req.userId) {
       return res.status(401).json({
-        error: "You don't have permitions to cancel this appointment",
+        error: 'An meetup can only be deleted by its organizer',
       });
     }
 
