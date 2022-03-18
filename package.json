@@ -5,7 +5,10 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon src/server.js -e js",
-    "queue": "nodemon src/queue.js"
+    "queue": "nodemon src/queue.js",
+    "start:dev": "yarn queue && yarn dev",
+    "migrate": "yarn sequelize db:migrate",
+    "migrate:revert": "yarn sequelize db:migrate:undo:all"
   },
   "dependencies": {
     "@sentry/node": "5.6.2",
@@ -22,7 +25,7 @@
     "multer": "^1.4.2",
     "nodemailer": "^6.3.0",
     "nodemailer-express-handlebars": "^3.1.0",
-    "pg": "^7.12.1",
+    "pg": "^8.7.3",
     "pg-hstore": "^2.3.3",
     "sequelize": "^5.15.1",
     "youch": "^2.0.10",
